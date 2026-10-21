@@ -44,7 +44,11 @@ export const structure: StructureResolver = (S) =>
       S.listItem()
         .title('🖼️ Portfolio')
         .schemaType('portfolio')
-        .child(S.documentTypeList('portfolio').title('Portfolio Items')),
+        .child(
+          S.documentTypeList('portfolio')
+            .title('Portfolio Items')
+            .defaultOrdering([{ field: 'order', direction: 'asc' }])
+        ),
 
       // 👥 Team
       S.listItem()
