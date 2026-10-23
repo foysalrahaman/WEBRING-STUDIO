@@ -8,8 +8,7 @@ import { ThemeProvider } from '@/components/shared/ThemeProvider';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Toaster } from 'sonner';
-import { client } from '@/sanity/lib/client';
-import { siteSettingsQuery } from '@/sanity/lib/queries';
+import { getSiteSettings as fetchSiteSettings } from '@/lib/data';
 import type { SiteSettings } from '@/lib/types';
 
 const inter = Inter({
@@ -61,8 +60,7 @@ export const viewport: Viewport = {
 
 async function getSiteSettings(): Promise<SiteSettings | null> {
   try {
-    // Reduced revalidate to 10 seconds so the maintenance toggle is fast and responsive
-    return await client.fetch(siteSettingsQuery, {}, { next: { revalidate: 10 } });
+    return await fetchSiteSettings();
   } catch {
     return null;
   }

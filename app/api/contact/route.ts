@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
 import { writeClient } from '@/sanity/lib/client';
+import { isFirebaseConfigured } from '@/lib/firebase/config';
+import { createContactFs } from '@/lib/firebase/queries';
 import { rateLimit, stripHtml } from '@/lib/utils';
 
 // Email transporter configuration
@@ -60,6 +62,23 @@ export async function POST(request: NextRequest) {
       }
     } catch (sanityError) {
       console.error('Failed to save to Sanity:', sanityError);
+    }
+
+    // Also save to Firestore when Firebase is configured (migration dual-write)
+    if (isFirebaseConfigured) {
+      try {
+        const fsId = await createContactFs({
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          subject: data.subject,
+          service: data.service,
+          message: data.message,
+        });
+        if (fsId) contactId = fsId;
+      } catch (firestoreError) {
+        console.error('Failed to save contact to Firestore:', firestoreError);
+      }
     }
 
     // 2. Send emails via Nodemailer

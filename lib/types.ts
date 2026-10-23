@@ -153,6 +153,8 @@ export interface SanityImage {
     _type: 'reference';
   };
   alt?: string;
+  /** Direct URL when the image lives outside Sanity (e.g. Firestore/Storage). */
+  _url?: string;
 }
 
 export interface ContactForm {

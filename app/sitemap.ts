@@ -1,14 +1,11 @@
 import { MetadataRoute } from 'next';
-import { client } from '@/sanity/lib/client';
-import { groq } from 'next-sanity';
+import { getPortfolioSlugs } from '@/lib/data';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://webring-studio.vercel.app';
 
-  // Get all portfolio slugs from Sanity
-  const portfolioSlugs = await client.fetch<string[]>(
-    groq`*[_type == "portfolio" && defined(slug.current)].slug.current`
-  );
+  // Get all portfolio slugs from the active data source
+  const portfolioSlugs = await getPortfolioSlugs().catch(() => [] as string[]);
 
   const portfolioUrls = portfolioSlugs.map((slug) => ({
     url: `${baseUrl}/portfolio/${slug}`,

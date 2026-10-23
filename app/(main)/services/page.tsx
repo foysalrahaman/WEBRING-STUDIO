@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { client } from '@/sanity/lib/client';
-import { servicesQuery } from '@/sanity/lib/queries';
+import { getServices as fetchServices } from '@/lib/data';
 import type { Service } from '@/lib/types';
 import ServicesPageClient from './ServicesPageClient';
 
@@ -76,7 +75,7 @@ const fallbackServices: Service[] = [
 
 async function getServices(): Promise<Service[]> {
   try {
-    const services = await client.fetch<Service[]>(servicesQuery);
+    const services = await fetchServices();
     return services && services.length > 0 ? services : fallbackServices;
   } catch {
     return fallbackServices;

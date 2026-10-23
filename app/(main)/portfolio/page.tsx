@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { client } from '@/sanity/lib/client';
-import { allPortfolioQuery } from '@/sanity/lib/queries';
+import { getAllPortfolio } from '@/lib/data';
 import type { PortfolioItem } from '@/lib/types';
 import PortfolioPageClient from './PortfolioPageClient';
 
@@ -13,7 +12,7 @@ export const revalidate = 60;
 
 async function getPortfolio(): Promise<PortfolioItem[]> {
   try {
-    const items = await client.fetch<PortfolioItem[]>(allPortfolioQuery);
+    const items = await getAllPortfolio();
     return items || [];
   } catch {
     return [];

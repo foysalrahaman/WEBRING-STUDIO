@@ -1,0 +1,58 @@
+// ═══════════════════════════════════════════════════════════════
+// WEBRING — Firestore Security Rules
+// ═══════════════════════════════════════════════════════════════
+// Public content is world-readable (the website renders it).
+// Content writes require a signed-in admin (Firebase Auth).
+// bookings / contacts are create-only from the public site:
+// anyone may submit the form, nobody may read/edit/delete them
+// from the client — read them in the Firebase Console instead.
+// Deploy: Firebase Console → Firestore Database → Rules → paste
+// this file → Publish. (Or: firebase deploy --only firestore:rules)
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // Singletons: site settings, home page, available dates
+    match /content/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Public catalogues
+    match /portfolio/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /services/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /pricing/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /testimonials/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /team/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Form submissions: create-only for the public
+    match /bookings/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+    match /contacts/{docId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}
