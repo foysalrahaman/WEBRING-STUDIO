@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
 import { writeClient } from '@/sanity/lib/client';
-import { isFirebaseConfigured } from '@/lib/firebase/config';
-import { createBookingFs } from '@/lib/firebase/queries';
 import { rateLimit, stripHtml, formatDate } from '@/lib/utils';
 
 // Email transporter configuration
@@ -72,28 +70,6 @@ export async function POST(request: NextRequest) {
       }
     } catch (sanityError) {
       console.error('Failed to save booking to Sanity:', sanityError);
-    }
-
-    // Also save to Firestore when Firebase is configured (migration dual-write)
-    if (isFirebaseConfigured) {
-      try {
-        const fsId = await createBookingFs({
-          clientName: data.clientName,
-          email: data.email,
-          whatsapp: data.whatsapp,
-          company: data.company,
-          services: data.services,
-          productCategory: data.productCategory,
-          budget: data.budget,
-          notes: data.notes,
-          selectedDate: data.selectedDate,
-          selectedTime: data.selectedTime,
-          referral: data.referral,
-        });
-        if (fsId) bookingId = fsId;
-      } catch (firestoreError) {
-        console.error('Failed to save booking to Firestore:', firestoreError);
-      }
     }
 
     // Send emails via Nodemailer

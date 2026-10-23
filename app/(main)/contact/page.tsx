@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { getSiteSettings as fetchSiteSettings } from '@/lib/data';
+import { client } from '@/sanity/lib/client';
+import { siteSettingsQuery } from '@/sanity/lib/queries';
 import type { SiteSettings } from '@/lib/types';
 import ContactPageClient from './ContactPageClient';
 
@@ -12,7 +13,7 @@ export const revalidate = 60;
 
 async function getSiteSettings(): Promise<SiteSettings | null> {
   try {
-    return await fetchSiteSettings();
+    return await client.fetch<SiteSettings>(siteSettingsQuery);
   } catch {
     return null;
   }

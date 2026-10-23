@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
-import { getServices, getAvailableDates, getTeamMembers } from '@/lib/data';
+import { client } from '@/sanity/lib/client';
+import { servicesQuery, availableDatesQuery, teamMembersQuery } from '@/sanity/lib/queries';
+import type { Service, AvailableDates, TeamMember } from '@/lib/types';
 import BookPageClient from './BookPageClient';
 
 export const metadata: Metadata = {
@@ -12,9 +14,9 @@ export const revalidate = 60;
 async function getData() {
   try {
     const [services, availableDates, team] = await Promise.all([
-      getServices(),
-      getAvailableDates(),
-      getTeamMembers(),
+      client.fetch<Service[]>(servicesQuery),
+      client.fetch<AvailableDates>(availableDatesQuery),
+      client.fetch<TeamMember[]>(teamMembersQuery),
     ]);
     return { services, availableDates, team };
   } catch {

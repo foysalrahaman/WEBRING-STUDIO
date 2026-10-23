@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { client } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
-import { getPortfolioBySlug, getPortfolioSlugs } from '@/lib/data';
+import {
+  portfolioBySlugQuery,
+  portfolioSlugsQuery,
+} from '@/sanity/lib/queries';
 import type { PortfolioItem } from '@/lib/types';
 import PortfolioDetailClient from './PortfolioDetailClient';
 
@@ -9,7 +13,7 @@ export const revalidate = 60;
 
 export async function generateStaticParams() {
   try {
-    const slugs = await getPortfolioSlugs();
+    const slugs = await client.fetch<string[]>(portfolioSlugsQuery);
     return (slugs || []).map((slug) => ({ slug }));
   } catch {
     return [];
@@ -22,7 +26,9 @@ export async function generateMetadata({
   params: { slug: string };
 }): Promise<Metadata> {
   try {
-    const item = await getPortfolioBySlug(params.slug);
+    const item = await client.fetch<PortfolioItem>(portfolioBySlugQuery, {
+      slug: params.slug,
+    });
     if (!item) return { title: 'Project Not Found' };
     return {
       title: `${item.title} | WEBRING Portfolio`,
@@ -44,7 +50,9 @@ export default async function PortfolioDetailPage({
   let project: PortfolioItem | null = null;
 
   try {
-    project = await getPortfolioBySlug(params.slug);
+    project = await client.fetch<PortfolioItem>(portfolioBySlugQuery, {
+      slug: params.slug,
+    });
   } catch {
     // graceful fallback
   }

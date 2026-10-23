@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { getTeamMembers } from '@/lib/data';
+import { client } from '@/sanity/lib/client';
+import { teamMembersQuery } from '@/sanity/lib/queries';
 import type { TeamMember } from '@/lib/types';
 import AboutPageClient from './AboutPageClient';
 
@@ -14,7 +15,7 @@ import { fallbackTeam } from '@/lib/fallbackData';
 
 async function getTeam(): Promise<TeamMember[]> {
   try {
-    const team = await getTeamMembers();
+    const team = await client.fetch<TeamMember[]>(teamMembersQuery);
     return team && team.length > 0 ? team : fallbackTeam;
   } catch {
     return fallbackTeam;
